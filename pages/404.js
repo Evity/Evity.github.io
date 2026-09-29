@@ -1,23 +1,15 @@
-import BLOG from '@/blog.config'
-import { siteConfig } from '@/lib/config'
-import { fetchGlobalAllData } from '@/lib/db/SiteDataApi'
-import { DynamicLayout } from '@/themes/theme'
-
-/**
- * 404
- * @param {*} props
- * @returns
- */
-const NoFound = props => {
-  const theme = siteConfig('THEME', BLOG.THEME, props.NOTION_CONFIG)
-  return <DynamicLayout theme={theme} layoutName='Layout404' {...props} />
+import Link from 'next/link'
+import Meta from '../components/Meta'
+export default function NotFound() {
+  return (
+    <div className='error-page'>
+      <Meta title='页面不存在' noindex />
+      <span className='eyebrow'>404 / A SMALL DETOUR</span>
+      <h1>这里暂时没有记录。</h1>
+      <p>页面可能已移动，或尚未公开。</p>
+      <Link className='button' href='/'>
+        回到首页 ↗
+      </Link>
+    </div>
+  )
 }
-
-export async function getStaticProps(req) {
-  const { locale } = req
-
-  const props = (await fetchGlobalAllData({ from: '404', locale })) || {}
-  return { props }
-}
-
-export default NoFound

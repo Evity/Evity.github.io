@@ -48,7 +48,8 @@ yarn-error.log*
 /sitemap.xml
 
 # yarn
-package-lock.json
+# npm lockfile is committed
 # yarn.lock
 
 .notion-api-lock
+*.tsbuildinfo

@@ -1,7 +1,15 @@
-export default function ErrorPage({ statusCode }) {
-  return <div>发生错误，状态码：{statusCode || 404}</div>
-}
-ErrorPage.getInitialProps = ({ res, err }) => {
-  const statusCode = res ? res.statusCode : err ? err.statusCode : 404
-  return { statusCode }
+import Link from 'next/link'
+import Meta from '../components/Meta'
+export default function ErrorPage() {
+  return (
+    <div className='error-page'>
+      <Meta title='暂时无法加载' noindex />
+      <span className='eyebrow'>PLEASE TRY AGAIN</span>
+      <h1>稍等，正在找回这些记录。</h1>
+      <p>内容暂时无法加载，请稍后刷新。</p>
+      <Link className='button' href='/projects'>
+        先看看项目 ↗
+      </Link>
+    </div>
+  )
 }

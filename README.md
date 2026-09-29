@@ -1,79 +1,56 @@
-# 帮助教程
+# Evity · 代码与生活
 
-访问帮助：[NotionNext帮助手册](https://docs.tangly1024.com/)
+个人主页、文章博客与作品集。Notion 负责写作，GitHub 管理代码，Vercel 托管。
 
-> 本项目教程为免费、公开资源，仅限个人学习使用，禁止利用本教程建立的博客发布非法内容、进行违法犯罪活动。严禁任何个人或组织将本教程用于商业用途，包括但不限于直接售卖、间接收费、或其他变相盈利行为。转载、复制或介绍本教程内容时，须保留作者信息并明确注明来源。 
-> 本项目仅提供由作者团队授权的付费咨询服务，请注意辨别，谨防诈骗行为。任何未经授权的收费服务均可能存在法律风险。
+## 本地开发
 
-Notion是一个能让效率暴涨的生产力引擎，可以帮你书写文档、管理笔记，搭建知识库，甚至可以为你规划项目、时间管理、组织团队、提高生产力、还有当前最强大的AI技术加持。
+Node.js 20 或更新版本：
 
-> 若希望进一步探索Notion的功能，欢迎购买《[Notion笔记从入门到精通进阶课程](https://docs.tangly1024.com/article/notion-tutorial)》
+```sh
+npm ci
+cp .env.example .env.local
+npm run dev
+```
 
-> 若希望获得稳定、高速、不限设备数量的VPN科学上网服务，欢迎使用[飞鸟VPN](https://fbinv02.fbaff.cc/auth/register?code=kaA7t4kh)，这是我目前在用的VPN，仅作友情推广
+## 内容发布
 
-# NotionNext
+继续使用现有 **Notion 博客**数据库。公开文章必须同时满足：`type=Post`、`status=Published`、标题非空、`password` 为空，且处于 `date` 指定的发布范围内。`Page` 使用相同规则。草稿、Invisible、加锁文章、菜单和配置记录均不进入公开目录、详情、搜索、RSS、站点地图。
 
-<p>
-  <a aria-label="GitHub commit activity" href="https://github.com/tangly1024/NotionNext/commits/main" title="GitHub commit activity">
-    <img src="https://img.shields.io/github/commit-activity/m/tangly1024/NotionNext?style=for-the-badge"/>
-  </a>
-  <a aria-label="GitHub contributors" href="https://github.com/tangly1024/NotionNext/graphs/contributors" title="GitHub contributors">
-    <img src="https://img.shields.io/github/contributors/tangly1024/NotionNext?color=orange&style=for-the-badge"/>
-  </a>
-  <a aria-label="Build status" href="#" title="Build status">
-    <img src="https://img.shields.io/github/deployments/tangly1024/NotionNext/Production?logo=Vercel&style=for-the-badge"/>
-  </a>
-  <a aria-label="Powered by Vercel" href="https://vercel.com?utm_source=Craigary&utm_campaign=oss" title="Powered by Vercel">
-    <img src="https://www.datocms-assets.com/31049/1618983297-powered-by-vercel.svg" height="28"/>
-  </a>
-</p>
+- `slug` 保持原有文章路径，默认前缀为 `article`，可通过 `NEXT_PUBLIC_POST_URL_PREFIX` 设置。
+- 可选字段 `精选`（checkbox）与 `排序`（number）控制首页精选区。未设置精选时不展示精选区。
+- 首页、项目与关于内容在 `lib/site.js` 和对应页面维护。旧 Notion Config、Menu 不再改变导航、品牌或样式。
+- 正文继续使用 notion-client 与 react-notion-x。沿用现有 Notion 内部 API 兼容适配；并未迁移到官方 Notion API。
+- 详情仅允许当前博客数据库中的公开记录；不再支持任意 Notion ID 读取。子页面、嵌入数据库、跨页同步引用不展开，避免间接输出其他页面。
+- `password` 文章首版完全不公开；不再采用前端密码框隐藏已经下载的正文。
+- 内容页每 60 秒进入 ISR 重验证窗口；上游读取失败时详情重验证抛错，保留已有静态页。列表初次获取失败会显示“暂时无法加载”，不注入示例文章。
+- 撤回文章后存在缓存窗口；如需立即下线，请清理 Vercel 缓存或重新部署。
 
-中文文档 | [README in English](./README_EN.md)
+## Vercel
 
-<hr/>
+沿用现有项目及 GitHub 仓库，Framework Preset 选择 Next.js，安装命令 `npm ci`，构建命令 `npm run build`。删除旧项目里手动指定的 yarn/export 命令覆盖（如果有）。
 
-一个使用 NextJS + Notion API 实现的，部署在 Vercel 上的静态博客系统。为Notion和所有创作者设计。
+必需配置：
 
-支持多种部署方案
+| 变量                                     | 用途                                                                  |
+| ---------------------------------------- | --------------------------------------------------------------------- |
+| `NOTION_PAGE_ID`                         | 默认已指向现有博客库 `304744654b4b81689035f470b349cbd7`               |
+| `NEXT_PUBLIC_SITE_URL`                   | 正式访问地址，用于 canonical、RSS、sitemap；兼容旧 `NEXT_PUBLIC_LINK` |
+| `NOTION_TOKEN_V2` / `NOTION_ACTIVE_USER` | 仅当 Notion 数据访问需要时设置；不能加 NEXT_PUBLIC 前缀               |
 
-## 预览效果
+不要把旧主题参数、广告、Clerk 或评论服务配置迁移到新界面。Preview 部署的 robots.txt 禁止索引。没有站点 URL 时 RSS/sitemap 返回 503，避免生成指向错误域名的链接。
 
-在线演示：[https://preview.tangly1024.com/](https://preview.tangly1024.com/) ，点击左下角挂件可以切换主题，没找到喜欢的主题？[贡献](/CONTRIBUTING.md)一个吧~
+## 验证与回退
 
-| Next                                                                                                  | Medium                                                                                                      | Hexo                                                                                                  | Fukasawa                                                                                                          |
-| ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| <img src='./docs/theme-next.png' width='300'/> [预览NEXT](https://preview.tangly1024.com/?theme=next) | <img src='./docs/theme-medium.png' width='300'/> [预览MEDIUM](https://preview.tangly1024.com/?theme=medium) | <img src='./docs/theme-hexo.png' width='300'/> [预览HEXO](https://preview.tangly1024.com/?theme=hexo) | <img src='./docs/theme-fukasawa.png' width='300'/> [预览FUKASAWA](https://preview.tangly1024.com/?theme=fukasawa) |
+```sh
+npm run lint
+npm test
+npm run build
+```
 
-## 致谢
+离线内容夹具仅供本地验证：`BLOG_TEST_FIXTURE=true NEXT_PUBLIC_SITE_URL=http://localhost:3000 npm run build`。Vercel 环境中该开关无效，永不把夹具发布到线上。
 
-感谢Craig Hart发起的Nobelium项目
+验收首页空状态、项目外链、手机布局、深色模式、文章目录、代码复制、搜索、草稿和 ID 路由 404、RSS 与站点地图。合并前查看 Vercel Preview；生产回退使用 Vercel 的上一成功部署，代码通过 revert 恢复。
 
-<table><tr align="left">
-  <td align="center"><a href="https://github.com/craigary" title="Craig Hart"><img src="https://avatars.githubusercontent.com/u/10571717" width="64px;"alt="Craig Hart"/></a><br/><a href="https://github.com/craigary" title="Craig Hart">Craig Hart</a></td>
-</tr></table>
+## 来源
 
-## 贡献者
-
-致敬每一位开发者！
-
-[![Contributors](https://contrib.rocks/image?repo=tangly1024/NotionNext)](https://github.com/tangly1024/NotionNext/graphs/contributors)
-
-## 引用技术
-
-- **框架**: [Next.js](https://nextjs.org)
-- **样式**: [Tailwind CSS](https://www.tailwindcss.cn/)
-- **渲染**: [React-notion-x](https://github.com/NotionX/react-notion-x)
-- **评论**: [Twikoo](https://github.com/imaegoo/twikoo), [Giscus](https://giscus.app/zh-CN), [Gitalk](https://gitalk.github.io), [Cusdis](https://cusdis.com), [Utterances](https://utteranc.es)
-- **图标**: [Fontawesome](https://fontawesome.com/v6/icons/)
-
-## 🔗 友情链接
-
-- [Elog](https://github.com/LetTTGACO/elog) Markdown 批量导出工具、开放式跨平台博客解决方案，随意组合写作平台(语雀/Notion/FlowUs/飞书)和博客平台(Hexo/Vitepress/Halo/Confluence/WordPress等)
-
-## License
-
-The MIT License.
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=tangly1024/NotionNext&type=Date)](https://star-history.com/#tangly1024/NotionNext&Date)
+基于 NotionNext / Nobelium 重构，保留 MIT LICENSE。移除多主题和推广插件，保留 Notion 数据格式兼容思路及 react-notion-x 正文渲染。

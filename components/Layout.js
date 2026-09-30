@@ -1,22 +1,11 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useTheme } from './ThemeProvider'
 import { site } from '../lib/site'
 import { SearchIcon, Arrow } from './Icons'
-export default function Layout({ children }) {
+export default function Layout({ children, article = false }) {
   const router = useRouter()
-  const [dark, setDark] = useState(false)
-  useEffect(() => {
-    setDark(document.documentElement.classList.contains('dark'))
-  }, [])
-  function toggleTheme() {
-    const next = !dark
-    document.documentElement.classList.toggle('dark', next)
-    setDark(next)
-    try {
-      localStorage.setItem('evity-theme', next ? 'dark' : 'light')
-    } catch (_) {}
-  }
+  const { dark, toggleTheme } = useTheme()
   return (
     <>
       <a className='skip-link' href='#main'>
@@ -39,7 +28,15 @@ export default function Layout({ children }) {
               <Link
                 key={href}
                 href={href}
-                aria-current={router.pathname === href ? 'page' : undefined}
+                aria-current={
+                  router.pathname === href
+                    ? 'page'
+                    : href === '/articles' &&
+                        (article ||
+                          ['/archive', '/search'].includes(router.pathname))
+                      ? 'true'
+                      : undefined
+                }
               >
                 {label}
               </Link>
@@ -71,7 +68,7 @@ export default function Layout({ children }) {
           </div>
         </div>
       </header>
-      <main id='main' className='shell'>
+      <main id='main' className='shell' tabIndex={-1}>
         {children}
       </main>
       <footer className='shell site-footer'>

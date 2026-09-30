@@ -1,52 +1,70 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Meta from '../components/Meta'
 import PostList from '../components/PostList'
-export default function Articles({
-  posts = [],
-  unavailable = false,
-  search = false
-}) {
+import {
+  createPostIndex,
+  filterPosts,
+  paginatePosts,
+  articleListHref
+} from '../lib/article-list.cjs'
+
+export default function Articles(props) {
   const router = useRouter()
-  const [query, setQuery] = useState('')
-  useEffect(() => {
-    setQuery(typeof router.query.q === 'string' ? router.query.q : '')
-  }, [router.asPath, router.query.q])
+  // Reset input on navigation, including Back/Forward, without an effect race.
+  return (
+    <ArticleDirectory
+      key={router.isReady ? router.asPath : 'initial'}
+      {...props}
+    />
+  )
+}
+
+function ArticleDirectory({ posts = [], unavailable = false, search = false }) {
+  const router = useRouter()
+  const basePath = search ? '/search' : '/articles'
+  const urlQuery = typeof router.query.q === 'string' ? router.query.q : ''
+  const [query, setQuery] = useState(urlQuery)
   const category =
     typeof router.query.category === 'string' ? router.query.category : ''
   const tag = typeof router.query.tag === 'string' ? router.query.tag : ''
-  const categories = [...new Set(posts.map(p => p.category).filter(Boolean))]
-  const keyword = query.trim().toLowerCase()
-  const filtered = posts.filter(
-    p =>
-      (!category || p.category === category) &&
-      (!tag || p.tags.includes(tag)) &&
-      (!keyword ||
-        [p.title, p.summary, ...p.tags, p.category]
-          .join(' ')
-          .toLowerCase()
-          .includes(keyword))
+  const categories = useMemo(
+    () => [...new Set(posts.map(p => p.category).filter(Boolean))],
+    [posts]
   )
-  const page = Math.max(
-    1,
-    Math.min(
-      Math.ceil(filtered.length / 10) || 1,
-      (query !== (router.query.q || '') ? 1 : Number(router.query.page)) || 1
-    )
+  const index = useMemo(() => createPostIndex(posts), [posts])
+  const filtered = useMemo(
+    () => filterPosts(index, { query, category, tag }),
+    [index, query, category, tag]
   )
-  const pageLink = n => ({
-    pathname: search ? '/search' : '/articles',
-    query: {
-      ...(category ? { category } : {}),
-      ...(tag ? { tag } : {}),
-      ...(keyword ? { q: keyword } : {}),
-      page: n
-    }
-  })
+  const {
+    page,
+    totalPages,
+    posts: visiblePosts
+  } = paginatePosts(
+    filtered,
+    query.trim() !== urlQuery.trim() ? 1 : router.query.page
+  )
+  const href = overrides =>
+    articleListHref(basePath, { query, category, tag, ...overrides })
+  function clearFilters() {
+    setQuery('')
+    void router.replace(basePath, undefined, { shallow: true, scroll: false })
+  }
+  function submitSearch(event) {
+    event.preventDefault()
+    void router.push(href({ page: 1 }), undefined, {
+      shallow: true,
+      scroll: false
+    })
+  }
   return (
     <>
-      <Meta title={search ? '搜索' : '文章'} noindex={search || !!keyword} />
+      <Meta
+        title={search ? '搜索' : '文章'}
+        noindex={search || !!query.trim()}
+      />
       <header className='page-heading'>
         <span className='eyebrow'>
           {search ? 'FIND A NOTE' : 'WRITING & NOTES'}
@@ -55,42 +73,71 @@ export default function Articles({
         <p>技术实践、工具探索，以及日常生活中的思考。</p>
       </header>
       <div className='article-toolbar'>
-        <div className='filter-tabs'>
+        <nav className='filter-tabs' aria-label='文章分类'>
           <Link
-            href='/articles'
-            aria-current={!category && !tag ? 'page' : undefined}
+            href={href({ category: '' })}
+            aria-current={!category ? 'page' : undefined}
           >
             全部
           </Link>
           {categories.map(c => (
             <Link
               key={c}
-              href={`/articles?category=${encodeURIComponent(c)}`}
+              href={href({ category: c })}
               aria-current={category === c ? 'page' : undefined}
             >
               {c}
             </Link>
           ))}
           <Link href='/archive'>按年归档 ↗</Link>
-        </div>
-        <label className='search-field'>
-          <span className='sr-only'>搜索标题、摘要与标签</span>
-          <input
-            type='search'
-            placeholder='搜索标题、摘要与标签…'
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-          />
-        </label>
+        </nav>
+        <form
+          className='search-form'
+          role='search'
+          action={basePath}
+          onSubmit={submitSearch}
+        >
+          {category && <input type='hidden' name='category' value={category} />}
+          {tag && <input type='hidden' name='tag' value={tag} />}
+          <label className='search-field'>
+            <span className='sr-only'>搜索标题、摘要与标签</span>
+            <input
+              name='q'
+              type='search'
+              placeholder='搜索标题、摘要与标签…'
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+            />
+          </label>
+          <button type='submit' className='search-submit'>
+            搜索
+          </button>
+        </form>
       </div>
-      {tag && (
+      {(tag || category || query.trim()) && (
         <div className='active-filter'>
-          标签：{tag} <Link href='/articles'>清除 ×</Link>
+          {tag && (
+            <span>
+              标签：{tag}{' '}
+              <Link href={href({ tag: '' })} aria-label={`清除标签 ${tag}`}>
+                ×
+              </Link>
+            </span>
+          )}
+          <button
+            type='button'
+            className='clear-filters'
+            onClick={clearFilters}
+          >
+            清除筛选
+          </button>
         </div>
       )}
-      <p className='result-count' aria-live='polite'>
-        {filtered.length} 篇记录
-      </p>
+      {!unavailable && (
+        <p className='result-count' aria-live='polite'>
+          {filtered.length} 篇记录
+        </p>
+      )}
       {!filtered.length && posts.length > 0 ? (
         <div className='empty-state'>
           <div>
@@ -99,22 +146,19 @@ export default function Articles({
           </div>
         </div>
       ) : (
-        <PostList
-          posts={filtered.slice((page - 1) * 10, page * 10)}
-          unavailable={unavailable}
-        />
+        <PostList posts={visiblePosts} unavailable={unavailable} />
       )}
-      <nav className='pagination' aria-label='文章分页'>
-        {page > 1 && <Link href={pageLink(page - 1)}>← 上一页</Link>}
-        {filtered.length > 10 && (
+      {totalPages > 1 && (
+        <nav className='pagination' aria-label='文章分页'>
+          {page > 1 && <Link href={href({ page: page - 1 })}>← 上一页</Link>}
           <span>
-            {page} / {Math.ceil(filtered.length / 10)}
+            {page} / {totalPages}
           </span>
-        )}
-        {page * 10 < filtered.length && (
-          <Link href={pageLink(page + 1)}>下一页 →</Link>
-        )}
-      </nav>
+          {page < totalPages && (
+            <Link href={href({ page: page + 1 })}>下一页 →</Link>
+          )}
+        </nav>
+      )}
     </>
   )
 }

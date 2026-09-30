@@ -10,7 +10,7 @@ export default function Meta({
 }) {
   const { asPath } = useRouter()
   const fullTitle = title ? `${title} · Evity` : site.title
-  const canonical = site.url ? `${site.url}${asPath.split('?')[0]}` : null
+  const canonical = site.url ? `${site.url}${asPath.split(/[?#]/)[0]}` : null
   return (
     <Head>
       <title>{fullTitle}</title>

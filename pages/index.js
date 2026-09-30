@@ -108,11 +108,7 @@ export default function Home({ posts = [], unavailable = false }) {
     </>
   )
 }
-export async function getStaticProps() {
+export async function getStaticProps(context) {
   const { listingProps } = await import('../lib/notion')
-  try {
-    return await listingProps()
-  } catch (_) {
-    return { props: { posts: [], unavailable: true }, revalidate: 15 }
-  }
+  return listingProps(context)
 }

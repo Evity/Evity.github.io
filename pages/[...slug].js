@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
 import { getTextContent } from 'notion-utils'
 import ArticleBody from '../components/ArticleBody'
+import CopyButton from '../components/CopyButton'
 import Meta from '../components/Meta'
 import PostList from '../components/PostList'
+import { site } from '../lib/site'
 export default function Article({ post, recordMap, pageLinks, related = [] }) {
-  const [copied, setCopied] = useState(false)
   const headings = Object.values(recordMap.block)
     .map(x => x.value)
     .filter(x => ['header', 'sub_header', 'sub_sub_header'].includes(x.type))
@@ -65,19 +65,15 @@ export default function Article({ post, recordMap, pageLinks, related = [] }) {
           />
           <div className='article-end'>
             <span>写于 {post.publishedAt}</span>
-            <button
+            <CopyButton
               className='text-link'
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(window.location.href)
-                  setCopied(true)
-                } catch (_) {
-                  setCopied(false)
-                }
-              }}
+              getText={() =>
+                `${site.url || window.location.origin}/${post.slug}`
+              }
+              successLabel='链接已复制'
             >
-              {copied ? '链接已复制' : '复制文章链接 ↗'}
-            </button>
+              复制文章链接 ↗
+            </CopyButton>
           </div>
         </article>
         {headings.length > 0 && (
@@ -132,9 +128,8 @@ export async function getStaticProps({ params }) {
     }
   }
   const { getCatalog, getArticleBody } = await import('../lib/notion')
-  const { findPublicPage, publicSummary, normalizeId } = await import(
-    '../lib/public-content.cjs'
-  )
+  const { findPublicPage, publicSummary, normalizeId } =
+    await import('../lib/public-content.cjs')
   const rows = await getCatalog()
   const found = findPublicPage(rows, path.replace(/\.html$/, ''))
   if (!found) return { notFound: true, revalidate: 60 }

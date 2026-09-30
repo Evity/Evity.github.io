@@ -27,6 +27,9 @@ test('only published public articles and pages pass the shared boundary', () => 
     { title: '  ' },
     { date: { start_date: '2099-01-01' } },
     { date: { end_date: '2020-01-01' } },
+    { date: { end_date: 'not-a-date' } },
+    { date: { start_date: '2026-02-30' } },
+    { date: { start_date: '2026-01-01', start_time: '25:00' } },
     { slug: 'https://external.invalid/x' }
   ])
     assert.equal(isPublic({ ...row, ...patch }), false)
@@ -79,8 +82,13 @@ test('body output excludes unrelated, nested private pages and their signed atta
         value: {
           id: 'root',
           type: 'page',
-          content: ['public', 'private', 'db', 'sync'],
-          permissions: ['PRIVATE']
+          content: ['public', 'private', 'db', 'sync', 'deleted'],
+          permissions: ['PRIVATE'],
+          properties: {
+            title: [['Public title']],
+            notes: [['EDITORIAL SECRET']],
+            password: [['SECRET PASSWORD']]
+          }
         }
       },
       public: {
@@ -99,6 +107,14 @@ test('body output excludes unrelated, nested private pages and their signed atta
       },
       db: { value: { id: 'db', type: 'collection_view' } },
       sync: { value: { id: 'sync', type: 'transclusion_reference' } },
+      deleted: {
+        value: {
+          id: 'deleted',
+          type: 'text',
+          alive: false,
+          properties: { title: [['DELETED SECRET']] }
+        }
+      },
       unrelated: { value: { id: 'unrelated', type: 'text' } }
     },
     signed_urls: { public: 'public-url', private: 'secret-url' },
@@ -108,6 +124,9 @@ test('body output excludes unrelated, nested private pages and their signed atta
   const out = pruneRecordMap(raw, 'root')
   assert.deepEqual(Object.keys(out.block), ['root', 'public'])
   assert.deepEqual(out.block.root.value.content, ['public'])
+  assert.deepEqual(out.block.root.value.properties, {
+    title: [['Public title']]
+  })
   assert.equal(JSON.stringify(out).includes('SECRET'), false)
   assert.equal(JSON.stringify(out).includes('secret-url'), false)
   assert.deepEqual(out.notion_user, {})

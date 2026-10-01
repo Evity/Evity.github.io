@@ -3,7 +3,12 @@ import { useRouter } from 'next/router'
 import { useTheme } from './ThemeProvider'
 import { site } from '../lib/site'
 import { SearchIcon, Arrow } from './Icons'
-export default function Layout({ children, article = false }) {
+export default function Layout({
+  children,
+  article = false,
+  hasNotionContent = false
+}) {
+  const Main = hasNotionContent ? 'div' : 'main'
   const router = useRouter()
   const { dark, toggleTheme } = useTheme()
   return (
@@ -68,9 +73,9 @@ export default function Layout({ children, article = false }) {
           </div>
         </div>
       </header>
-      <main id='main' className='shell' tabIndex={-1}>
+      <Main id='main' className='shell' tabIndex={-1}>
         {children}
-      </main>
+      </Main>
       <footer className='shell site-footer'>
         <div>
           <Link href='/' className='footer-name'>

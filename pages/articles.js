@@ -141,12 +141,12 @@ function ArticleDirectory({ posts = [], unavailable = false, search = false }) {
       {!filtered.length && posts.length > 0 ? (
         <div className='empty-state'>
           <div>
-            <h3>没有找到匹配的文章</h3>
+            <h2>没有找到匹配的文章</h2>
             <p>试试其他关键词，或清除筛选条件。</p>
           </div>
         </div>
       ) : (
-        <PostList posts={visiblePosts} unavailable={unavailable} />
+        <PostList posts={visiblePosts} unavailable={unavailable} headingLevel={2} />
       )}
       {totalPages > 1 && (
         <nav className='pagination' aria-label='文章分页'>

@@ -7,7 +7,10 @@ import { ThemeProvider } from '../components/ThemeProvider'
 export default function App({ Component, pageProps }) {
   return (
     <ThemeProvider>
-      <Layout article={pageProps.post?.type === 'Post'}>
+      <Layout
+        article={pageProps.post?.type === 'Post'}
+        hasNotionContent={!!pageProps.recordMap}
+      >
         <Component {...pageProps} />
       </Layout>
     </ThemeProvider>

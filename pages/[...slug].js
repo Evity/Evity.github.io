@@ -23,7 +23,7 @@ export default function Article({ post, recordMap, pageLinks, related = [] }) {
         image={post.cover}
         article
       />
-      <header className='article-heading'>
+      <section className='article-heading' aria-label='文章标题'>
         <Link className='back-link' href='/articles'>
           ← 所有文章
         </Link>
@@ -45,9 +45,9 @@ export default function Article({ post, recordMap, pageLinks, related = [] }) {
             </Link>
           ))}
         </div>
-      </header>
+      </section>
       <div className='reading-grid'>
-        <article className='article-body'>
+        <div className='article-body'>
           {post.cover && (
             <Image
               className='article-cover'
@@ -63,7 +63,7 @@ export default function Article({ post, recordMap, pageLinks, related = [] }) {
             pageId={post.id}
             pageLinks={pageLinks}
           />
-          <div className='article-end'>
+          <div className='article-end' role='region' aria-label='文章信息'>
             <span>写于 {post.publishedAt}</span>
             <CopyButton
               className='text-link'
@@ -75,7 +75,7 @@ export default function Article({ post, recordMap, pageLinks, related = [] }) {
               复制文章链接 ↗
             </CopyButton>
           </div>
-        </article>
+        </div>
         {headings.length > 0 && (
           <aside className='article-toc'>
             <details open>
@@ -96,11 +96,11 @@ export default function Article({ post, recordMap, pageLinks, related = [] }) {
         )}
       </div>
       {related.length > 0 && (
-        <section className='section related'>
+        <section className='section related' aria-labelledby='related-title'>
           <div className='section-heading'>
             <div>
               <span className='eyebrow'>KEEP READING</span>
-              <h2>继续阅读</h2>
+              <h2 id='related-title'>继续阅读</h2>
             </div>
           </div>
           <PostList posts={related} compact />

@@ -12,7 +12,7 @@ export default function Archive({ posts = [], unavailable = false }) {
         <h1>时间里的记录。</h1>
         <p>沿着时间，回看每一次思考与探索。</p>
       </header>
-      {!years.length && <EmptyPosts unavailable={unavailable} />}{' '}
+      {!years.length && <EmptyPosts unavailable={unavailable} headingLevel={2} />}{' '}
       {years.map(year => (
         <section className='archive-year' key={year}>
           <h2>{year}</h2>

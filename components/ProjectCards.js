@@ -43,6 +43,7 @@ export function ProjectArt({ project }) {
   )
 }
 export default function ProjectCards({ all = false }) {
+  const Heading = all ? 'h2' : 'h3'
   return (
     <div className={`project-grid ${all ? 'all-projects' : ''}`}>
       {projects.slice(0, all ? undefined : 3).map(project => (
@@ -56,10 +57,10 @@ export default function ProjectCards({ all = false }) {
           <ProjectArt project={project} />
           <div className='project-info'>
             <span className='eyebrow'>{project.category}</span>
-            <h3>
+            <Heading>
               {project.title}
               <Arrow diagonal />
-            </h3>
+            </Heading>
             <p>{project.description}</p>
             <span className='project-cta'>{project.label} ↗</span>
           </div>

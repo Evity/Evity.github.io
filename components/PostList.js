@@ -1,13 +1,14 @@
 import Link from 'next/link'
 import { Arrow } from './Icons'
-export function EmptyPosts({ unavailable = false }) {
+export function EmptyPosts({ unavailable = false, headingLevel = 3 }) {
+  const Heading = `h${headingLevel}`
   return (
     <div className='empty-state'>
       <span className='empty-symbol' aria-hidden='true'>
         ✳
       </span>
       <div>
-        <h3>{unavailable ? '文章暂时无法加载' : '新的记录，正在酝酿。'}</h3>
+        <Heading>{unavailable ? '文章暂时无法加载' : '新的记录，正在酝酿。'}</Heading>
         <p>
           {unavailable
             ? '请稍后再试，或先看看我的项目。'
@@ -23,9 +24,12 @@ export function EmptyPosts({ unavailable = false }) {
 export default function PostList({
   posts = [],
   unavailable = false,
-  compact = false
+  compact = false,
+  headingLevel = 3
 }) {
-  if (!posts.length) return <EmptyPosts unavailable={unavailable} />
+  const Heading = `h${headingLevel}`
+  if (!posts.length)
+    return <EmptyPosts unavailable={unavailable} headingLevel={headingLevel} />
   return (
     <div className={compact ? 'post-list compact' : 'post-list'}>
       {posts.map(post => (
@@ -33,9 +37,9 @@ export default function PostList({
           <time dateTime={post.publishedAt}>{post.publishedAt || '随笔'}</time>
           <div>
             <span className='eyebrow'>{post.category || '记录'}</span>
-            <h3>
+            <Heading>
               <Link href={`/${post.slug}`}>{post.title}</Link>
-            </h3>
+            </Heading>
             {!compact && post.summary && <p>{post.summary}</p>}
             <div className='post-tags'>
               {post.tags?.map(tag => (

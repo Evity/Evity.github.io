@@ -12,6 +12,18 @@ cp .env.example .env.local
 npm run dev
 ```
 
+开发与构建使用 Next.js 支持的 Webpack，以兼容不能创建符号链接的 VMware 共享目录。普通文件系统继续使用上述命令。
+
+如果在 VMware 共享目录中 `npm ci` 返回 `ENOTSUP`，可以在虚拟机本地文件系统开发，或禁用 npm 的命令符号链接后直接运行 CLI：
+
+```sh
+npm ci --no-bin-links
+node node_modules/next/dist/bin/next dev --webpack
+# 构建与检查
+node node_modules/next/dist/bin/next build --webpack
+node node_modules/eslint/bin/eslint.js .
+```
+
 ## 内容发布
 
 继续使用现有 **Notion 博客**数据库。公开文章必须同时满足：`type=Post`、`status=Published`、标题非空、`password` 为空，且处于 `date` 指定的发布范围内。`Page` 使用相同规则。草稿、Invisible、加锁文章、菜单和配置记录均不进入公开目录、详情、搜索、RSS、站点地图。

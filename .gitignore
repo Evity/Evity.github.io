@@ -53,3 +53,7 @@ yarn-error.log*
 
 .notion-api-lock
 *.tsbuildinfo
+
+# local migration references and generated code index
+/todo/
+/.codegraph/

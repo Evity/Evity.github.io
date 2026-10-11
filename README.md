@@ -9,6 +9,7 @@
 - [设计规范](DESIGN.md)：色彩、字体、布局、组件、交互、移动端与验收标准。
 - [页面与交互原型](docs/design/prototype.md)：首页、栏目、文章、关于、归档及内容字段。
 - [部署方法论](docs/DEPLOYMENT.md)：GitHub → Cloudflare Workers / Vercel、图片存储、域名、预览与回滚。
+- [Git 分支合并教程](GIT_OPERATIONS_GUIDE.md)：更新 `main`、按项目需求解决冲突，并安全快进本地分支。
 - [图片来源](docs/design/assets/SOURCES.md)：本地演示素材与用途。
 - [视觉生成提示词](docs/design/image-prompts.md)：视觉稿来源与复现说明。
 

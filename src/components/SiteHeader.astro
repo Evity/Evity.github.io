@@ -1,0 +1,36 @@
+---
+interface Props {
+  readonly activePath: string;
+}
+
+const { activePath } = Astro.props;
+const links = [
+  { label: "首页", href: "/" },
+  { label: "生活", href: "/life/" },
+  { label: "代码", href: "/code/" },
+  { label: "关于", href: "/about/" },
+] as const;
+---
+
+<header class="site-header">
+  <a class="site-brand" href="/" aria-label="日常之间，返回首页">
+    <span class="site-brand__name">日常之间</span>
+    <span class="site-brand__note">SLOW DAYS</span>
+  </a>
+  <nav class="site-nav" aria-label="主导航">
+    {links.map((link) => (
+      <a href={link.href} aria-current={activePath === link.href ? "page" : undefined}>{link.label}</a>
+    ))}
+  </nav>
+  <div class="mobile-nav">
+    <a href="/code/" aria-current={activePath === "/code/" ? "page" : undefined}>代码</a>
+    <details>
+      <summary aria-label="打开导航菜单">菜单</summary>
+      <nav aria-label="移动主导航">
+        {links.map((link) => (
+          <a href={link.href} aria-current={activePath === link.href ? "page" : undefined}>{link.label}</a>
+        ))}
+      </nav>
+    </details>
+  </div>
+</header>

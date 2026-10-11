@@ -1,0 +1,28 @@
+---
+import StoryCard from "../../components/StoryCard.astro";
+import Pagination from "../../components/Pagination.astro";
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { categoryPath, categoryLabels, getLifePosts, lifeCategories, POSTS_PER_PAGE } from "../../lib/posts";
+
+const posts = await getLifePosts();
+const lastPage = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+const pagePosts = posts.slice(0, POSTS_PER_PAGE);
+---
+
+<SiteLayout title="生活记录" description="吃过的味道、喜欢的音乐、咖啡与旅行。" activePath="/life/">
+  <section class="collection-page" aria-labelledby="collection-title">
+    <p class="eyebrow">LIFE NOTES</p>
+    <h1 id="collection-title">生活，总有<span class="text-phrase">值得记下的事。</span></h1>
+    <p class="collection-page__lead">吃过的味道、喜欢的音乐、咖啡与旅行。</p>
+    <nav class="category-nav" aria-label="生活分类">
+      <a href="/life/" aria-current="page">全部</a>
+      {lifeCategories.map((category) => <a href={categoryPath(category)}>{categoryLabels[category]}</a>)}
+    </nav>
+    {pagePosts.length > 0 ? (
+      <div class="story-grid story-grid--collection">{pagePosts.map((post) => <StoryCard post={post} />)}</div>
+    ) : (
+      <p class="empty-note">这里还没有记录。第一篇文章会从你想留下的一顿饭、一首歌或一段路开始。</p>
+    )}
+    <Pagination currentPage={1} lastPage={lastPage} basePath="/life/" />
+  </section>
+</SiteLayout>

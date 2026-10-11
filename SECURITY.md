@@ -1,5 +1,3 @@
 # Security
 
-Public content is limited to published, unlocked entries in the configured Notion blog database. Drafts and unrelated page IDs must return 404. Notion credentials belong only in server environment variables.
-
-Please do not include credentials or private Notion content in public issues. Use GitHub private vulnerability reporting if enabled, or contact the repository owner privately.
+This site publishes static pages and does not store visitor accounts or secrets. Please report security issues privately through GitHub Security Advisories if enabled, or contact the repository owner directly. Do not publish exploitable details or private data in a public issue.

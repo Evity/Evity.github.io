@@ -1,0 +1,28 @@
+---
+import ArticleRow from "../../components/ArticleRow.astro";
+import Pagination from "../../components/Pagination.astro";
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { codeTopicLabels, codeTopicPath, codeTopics, getCodePosts, POSTS_PER_PAGE } from "../../lib/posts";
+
+const posts = await getCodePosts();
+const lastPage = Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE));
+const pagePosts = posts.slice(0, POSTS_PER_PAGE);
+---
+
+<SiteLayout title="代码笔记" description="偶尔写下学会的代码和解决过的问题。" activePath="/code/">
+  <section class="collection-page" aria-labelledby="collection-title">
+    <p class="eyebrow">A SMALL CORNER</p>
+    <h1 id="collection-title">把学过的，慢慢弄明白。</h1>
+    <p class="collection-page__lead">这里留给代码学习与实践。生活首页仍然只展示生活记录。</p>
+    <nav class="category-nav" aria-label="代码主题">
+      <a href="/code/" aria-current="page">全部</a>
+      {codeTopics.map((topic) => <a href={codeTopicPath(topic)}>{codeTopicLabels[topic]}</a>)}
+    </nav>
+    {pagePosts.length > 0 ? (
+      <div class="article-row-list">{pagePosts.map((post) => <ArticleRow post={post} showDescription />)}</div>
+    ) : (
+      <p class="empty-note">代码笔记还没开始。想清楚一件小事时，再记下来。</p>
+    )}
+    <Pagination currentPage={1} lastPage={lastPage} basePath="/code/" />
+  </section>
+</SiteLayout>

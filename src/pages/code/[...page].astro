@@ -1,0 +1,32 @@
+---
+import type { GetStaticPaths, Page } from "astro";
+import ArticleRow from "../../components/ArticleRow.astro";
+import Pagination from "../../components/Pagination.astro";
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { codeTopicLabels, codeTopicPath, codeTopics, getCodePosts, POSTS_PER_PAGE, type Post } from "../../lib/posts";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getCodePosts();
+  return paginate(posts, { pageSize: POSTS_PER_PAGE }).filter(({ params }) => params.page !== undefined);
+}) satisfies GetStaticPaths;
+
+interface Props {
+  readonly page: Page<Post>;
+}
+
+const { page } = Astro.props as Props;
+---
+
+<SiteLayout title={`代码笔记 · 第 ${page.currentPage} 页`} description="偶尔写下学会的代码和解决过的问题。" activePath="/code/">
+  <section class="collection-page" aria-labelledby="collection-title">
+    <p class="eyebrow">A SMALL CORNER</p>
+    <h1 id="collection-title">把学过的，慢慢弄明白。</h1>
+    <p class="collection-page__lead">这里留给代码学习与实践。生活首页仍然只展示生活记录。</p>
+    <nav class="category-nav" aria-label="代码主题">
+      <a href="/code/" aria-current="page">全部</a>
+      {codeTopics.map((topic) => <a href={codeTopicPath(topic)}>{codeTopicLabels[topic]}</a>)}
+    </nav>
+    <div class="article-row-list">{page.data.map((post) => <ArticleRow post={post} showDescription />)}</div>
+    <Pagination currentPage={page.currentPage} lastPage={page.lastPage} basePath="/code/" />
+  </section>
+</SiteLayout>

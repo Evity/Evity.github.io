@@ -1,0 +1,41 @@
+---
+import type { GetStaticPaths, Page } from "astro";
+import StoryCard from "../../../components/StoryCard.astro";
+import Pagination from "../../../components/Pagination.astro";
+import SiteLayout from "../../../layouts/SiteLayout.astro";
+import { categoryLabels, categoryPath, getLifePosts, lifeCategories, POSTS_PER_PAGE, type LifeCategory, type Post } from "../../../lib/posts";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getLifePosts();
+  return lifeCategories.flatMap((category) =>
+    paginate(posts.filter((post) => post.data.category === category), {
+      pageSize: POSTS_PER_PAGE,
+      params: { category },
+      props: { category },
+    }).filter(({ params }) => params.page !== undefined),
+  );
+}) satisfies GetStaticPaths;
+
+interface Props {
+  readonly page: Page<Post>;
+  readonly category: LifeCategory;
+}
+
+const { page, category } = Astro.props as Props;
+---
+
+<SiteLayout title={`${categoryLabels[category]} · 第 ${page.currentPage} 页`} description={`${categoryLabels[category]}，日常生活里的记录。`} activePath="/life/">
+  <section class="collection-page" aria-labelledby="collection-title">
+    <p class="eyebrow">LIFE NOTES / {category.toUpperCase()}</p>
+    <h1 id="collection-title">{categoryLabels[category]}</h1>
+    <p class="collection-page__lead">一张照片，一段当时的味道与心情。</p>
+    <nav class="category-nav" aria-label="生活分类">
+      <a href="/life/">全部</a>
+      {lifeCategories.map((item) => (
+        <a href={categoryPath(item)} aria-current={item === category ? "page" : undefined}>{categoryLabels[item]}</a>
+      ))}
+    </nav>
+    <div class="story-grid story-grid--collection">{page.data.map((post) => <StoryCard post={post} />)}</div>
+    <Pagination currentPage={page.currentPage} lastPage={page.lastPage} basePath={categoryPath(category)} />
+  </section>
+</SiteLayout>

@@ -1,0 +1,41 @@
+---
+import type { GetStaticPaths, Page } from "astro";
+import ArticleRow from "../../../components/ArticleRow.astro";
+import Pagination from "../../../components/Pagination.astro";
+import SiteLayout from "../../../layouts/SiteLayout.astro";
+import { codeTopicLabels, codeTopicPath, codeTopics, getCodePosts, POSTS_PER_PAGE, type CodeTopic, type Post } from "../../../lib/posts";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getCodePosts();
+  return codeTopics.flatMap((topic) =>
+    paginate(posts.filter((post) => post.data.codeTopic === topic), {
+      pageSize: POSTS_PER_PAGE,
+      params: { topic },
+      props: { topic },
+    }).filter(({ params }) => params.page !== undefined),
+  );
+}) satisfies GetStaticPaths;
+
+interface Props {
+  readonly page: Page<Post>;
+  readonly topic: CodeTopic;
+}
+
+const { page, topic } = Astro.props as Props;
+---
+
+<SiteLayout title={`${codeTopicLabels[topic]} · 第 ${page.currentPage} 页`} description={`${codeTopicLabels[topic]}，代码学习与实践记录。`} activePath="/code/">
+  <section class="collection-page" aria-labelledby="collection-title">
+    <p class="eyebrow">CODE NOTES / {topic.toUpperCase()}</p>
+    <h1 id="collection-title">{codeTopicLabels[topic]}</h1>
+    <p class="collection-page__lead">这里留给代码学习与实践。生活首页仍然只展示生活记录。</p>
+    <nav class="category-nav" aria-label="代码主题">
+      <a href="/code/">全部</a>
+      {codeTopics.map((item) => (
+        <a href={codeTopicPath(item)} aria-current={item === topic ? "page" : undefined}>{codeTopicLabels[item]}</a>
+      ))}
+    </nav>
+    <div class="article-row-list">{page.data.map((post) => <ArticleRow post={post} showDescription />)}</div>
+    <Pagination currentPage={page.currentPage} lastPage={page.lastPage} basePath={codeTopicPath(topic)} />
+  </section>
+</SiteLayout>

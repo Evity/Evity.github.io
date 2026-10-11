@@ -1,33 +1,24 @@
 {
-  "name": "evity-personal-blog",
-  "version": "1.0.0",
+  "name": "daily-between",
+  "version": "0.1.0",
   "private": true,
-  "license": "MIT",
-  "engines": {
-    "node": ">=20.9.0"
-  },
+  "type": "module",
+  "packageManager": "bun@1.3.14",
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "next build --webpack",
-    "start": "next start",
-    "lint": "eslint .",
-    "test": "node --test tests/*.test.cjs"
+    "dev": "node node_modules/astro/bin/astro.mjs dev --host 127.0.0.1",
+    "build": "node node_modules/astro/bin/astro.mjs build",
+    "preview": "node node_modules/astro/bin/astro.mjs preview --host 127.0.0.1",
+    "check": "node node_modules/astro/bin/astro.mjs check"
   },
   "dependencies": {
-    "katex": "^0.16.22",
-    "next": "16.3.8",
-    "notion-client": "7.7.1",
-    "notion-utils": "7.7.1",
-    "prismjs": "^1.30.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "react-notion-x": "7.7.1"
+    "astro": "7.3.5",
+    "sharp": "0.35.4"
   },
   "devDependencies": {
-    "@types/node": "^22.15.3",
-    "@types/react": "^18.3.10",
-    "eslint": "9.39.5",
-    "eslint-config-next": "16.3.8",
-    "typescript": "^5.6.2"
+    "@astrojs/check": "0.9.10",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

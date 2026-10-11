@@ -1,0 +1,64 @@
+:root {
+  color-scheme: light;
+  --surface-page: #f5f4ed;
+  --surface-raised: #faf9f5;
+  --surface-sage: #e9ede3;
+  --text-primary: #242720;
+  --text-secondary: #62645b;
+  --accent: #465c43;
+  --accent-hover: #30422e;
+  --border: #dcddd2;
+  --control-border: #7a7d70;
+  --error: #a13e32;
+  --radius-photo: 0.25rem;
+  --radius-control: 0.375rem;
+  --radius-code: 0.5rem;
+  --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+  --sans: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --code-muted: #8b949e;
+  --text-display: clamp(2rem, 4vw, 3rem);
+  --text-brand: 1.8125rem;
+  --text-h1: clamp(1.875rem, 3.4vw, 2.5rem);
+  --text-h2: clamp(1.5rem, 2.6vw, 1.75rem);
+  --text-h3: clamp(1.25rem, 2vw, 1.375rem);
+  --text-body: 1.125rem;
+  --text-ui: 1rem;
+  --text-caption: 0.875rem;
+  --text-eyebrow: 0.75rem;
+  --text-code: 0.875rem;
+  --text-fine: 0.75rem;
+  --focus-outline: 2px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --content-width: 70rem;
+  --reading-width: 45rem;
+  --toc-width: 12rem;
+  --line: 1px solid var(--border);
+  font-family: var(--sans);
+  color: var(--text-primary);
+  background: var(--surface-page);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+@media (max-width: 47.999rem) {
+  :root {
+    --text-display: 2rem;
+    --text-brand: 1.5rem;
+    --text-h1: 1.875rem;
+    --text-h2: 1.5rem;
+    --text-h3: 1.25rem;
+    --text-body: 1.0625rem;
+  }
+}

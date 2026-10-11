@@ -1,0 +1,39 @@
+---
+import type { GetStaticPaths, Page } from "astro";
+import ArticleRow from "../../components/ArticleRow.astro";
+import Pagination from "../../components/Pagination.astro";
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { categoryLabels, formatYear, getLifePosts, POSTS_PER_PAGE, type Post } from "../../lib/posts";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getLifePosts();
+  return paginate(posts, { pageSize: POSTS_PER_PAGE }).filter(({ params }) => params.page !== undefined);
+}) satisfies GetStaticPaths;
+
+interface Props {
+  readonly page: Page<Post>;
+}
+
+const { page } = Astro.props as Props;
+const years = [...new Set(page.data.map((post) => formatYear(post.data.pubDate)))];
+---
+
+<SiteLayout title={`生活归档 · 第 ${page.currentPage} 页`} description="按时间浏览美食、音乐、咖啡与旅行记录。" activePath="/archive/">
+  <section class="archive-page" aria-labelledby="archive-title">
+    <p class="eyebrow">LIFE ARCHIVE</p>
+    <h1 id="archive-title">生活归档</h1>
+    <div class="archive-years">
+      {years.map((year) => (
+        <section class="archive-year" aria-labelledby={`archive-${year}`}>
+          <h2 id={`archive-${year}`}>{year}</h2>
+          <ol class="archive-list">
+            {page.data.filter((post) => formatYear(post.data.pubDate) === year).map((post) => (
+              <li><ArticleRow post={post} label={categoryLabels[post.data.category]} headingLevel={3} /></li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </div>
+    <Pagination currentPage={page.currentPage} lastPage={page.lastPage} basePath="/archive/" />
+  </section>
+</SiteLayout>

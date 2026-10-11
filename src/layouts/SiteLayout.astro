@@ -1,0 +1,33 @@
+---
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import "../styles/tokens.css";
+import "../styles/site.css";
+
+interface Props {
+  readonly title: string;
+  readonly description: string;
+  readonly activePath: string;
+}
+
+const { title, description, activePath } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#F5F4ED" />
+    <meta name="description" content={description} />
+    <title>{title} · 日常之间</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳到正文</a>
+    <div class="page-shell">
+      <SiteHeader activePath={activePath} />
+      <main id="main-content"><slot /></main>
+      <SiteFooter />
+    </div>
+  </body>
+</html>

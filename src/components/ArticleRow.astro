@@ -1,0 +1,29 @@
+---
+import type { Post } from "../lib/posts";
+import { categoryLabels, codeTopicLabels, formatDate, postPath } from "../lib/posts";
+
+interface Props {
+  readonly post: Post;
+  readonly label?: string;
+  readonly headingLevel?: 2 | 3;
+  readonly showDescription?: boolean;
+}
+
+const { post, headingLevel = 2, showDescription = false } = Astro.props;
+const label = Astro.props.label ?? (post.data.category === "code"
+  ? post.data.codeTopic ? codeTopicLabels[post.data.codeTopic] : categoryLabels.code
+  : categoryLabels[post.data.category]);
+---
+
+<article class="article-row">
+  <div class="article-row__meta">
+    <span>{label}</span>
+    <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+  </div>
+  {headingLevel === 3 ? (
+    <h3 class="article-row__title"><a href={postPath(post)}>{post.data.title}</a></h3>
+  ) : (
+    <h2 class="article-row__title"><a href={postPath(post)}>{post.data.title}</a></h2>
+  )}
+  {showDescription && <p class="article-row__description">{post.data.description}</p>}
+</article>

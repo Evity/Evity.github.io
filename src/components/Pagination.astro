@@ -1,0 +1,27 @@
+---
+interface Props {
+  readonly currentPage: number;
+  readonly lastPage: number;
+  readonly basePath: string;
+}
+
+const { currentPage, lastPage, basePath } = Astro.props;
+const pageNumbers = Array.from({ length: lastPage }, (_, index) => index + 1);
+const hrefForPage = (pageNumber: number) => pageNumber === 1 ? basePath : `${basePath}${pageNumber}/`;
+---
+
+{lastPage > 1 && (
+  <nav class="pagination" aria-label="分页">
+    {currentPage > 1 ? <a href={hrefForPage(currentPage - 1)}>上一页</a> : <span aria-disabled="true">上一页</span>}
+    <ol aria-label="页码">
+      {pageNumbers.map((pageNumber) => (
+        <li>
+          {pageNumber === currentPage
+            ? <span aria-current="page">{pageNumber}</span>
+            : <a href={hrefForPage(pageNumber)}>{pageNumber}</a>}
+        </li>
+      ))}
+    </ol>
+    {currentPage < lastPage ? <a href={hrefForPage(currentPage + 1)}>下一页</a> : <span aria-disabled="true">下一页</span>}
+  </nav>
+)}

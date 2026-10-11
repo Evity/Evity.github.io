@@ -1,0 +1,21 @@
+---
+import { Picture } from "astro:assets";
+import vinyl from "../assets/images/vinyl.jpg";
+---
+
+<aside class="listening-panel" aria-labelledby="listening-title">
+  <p class="eyebrow">最近在听 · 示例内容</p>
+  <Picture
+    src={vinyl}
+    alt="棕色唱机上的黑胶唱片，原型音乐场景照"
+    formats={["avif", "webp"]}
+    widths={[240, 360, 540]}
+    sizes="(min-width: 1080px) 320px, (min-width: 700px) 100vw, calc(100vw - 80px)"
+    class="listening-panel__image"
+    loading="lazy"
+    decoding="async"
+  />
+  <h2 id="listening-title">留一面唱片的时间</h2>
+  <p>走路时听，做饭时也听。</p>
+  <p class="listening-panel__caption">唱机场景照 · 非专辑封面</p>
+</aside>

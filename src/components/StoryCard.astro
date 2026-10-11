@@ -1,0 +1,41 @@
+---
+import { Picture } from "astro:assets";
+import type { Post } from "../lib/posts";
+import { categoryLabels, formatDate, postPath } from "../lib/posts";
+
+interface Props {
+  readonly post: Post;
+  readonly headingLevel?: 2 | 3;
+}
+
+const { post, headingLevel = 2 } = Astro.props;
+---
+
+<article class="story-card">
+  <a class="story-card__link" href={postPath(post)} aria-label={post.data.title}>
+    {post.data.cover && (
+      <span class:list={["story-card__media", { "story-card__media--music": post.data.category === "music" }]}>
+        <Picture
+          src={post.data.cover}
+          alt={post.data.coverAlt ?? ""}
+          formats={["avif", "webp"]}
+          widths={[320, 480, 640, 800]}
+          sizes="(min-width: 1080px) 352px, (min-width: 700px) calc(50vw - 36px), calc(100vw - 40px)"
+          class="story-card__image"
+          loading="lazy"
+          decoding="async"
+        />
+      </span>
+    )}
+    <span class="story-card__meta">
+      <span>{categoryLabels[post.data.category]}</span>
+      <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+    </span>
+    {headingLevel === 3 ? (
+      <h3 class="story-card__title">{post.data.title}</h3>
+    ) : (
+      <h2 class="story-card__title">{post.data.title}</h2>
+    )}
+  </a>
+  <p class="story-card__description">{post.data.description}</p>
+</article>

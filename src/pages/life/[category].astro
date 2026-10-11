@@ -1,0 +1,49 @@
+---
+import StoryCard from "../../components/StoryCard.astro";
+import Pagination from "../../components/Pagination.astro";
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { categoryLabels, categoryPath, getLifePosts, lifeCategories, POSTS_PER_PAGE, type LifeCategory } from "../../lib/posts";
+
+export async function getStaticPaths() {
+  const posts = await getLifePosts();
+  return lifeCategories.map((category) => {
+    const categoryPosts = posts.filter((post) => post.data.category === category);
+    return {
+      params: { category },
+      props: {
+        posts: categoryPosts.slice(0, POSTS_PER_PAGE),
+        category,
+        lastPage: Math.max(1, Math.ceil(categoryPosts.length / POSTS_PER_PAGE)),
+      },
+    };
+  });
+}
+
+interface Props {
+  readonly posts: Awaited<ReturnType<typeof getLifePosts>>;
+  readonly category: LifeCategory;
+  readonly lastPage: number;
+}
+
+const { posts, category, lastPage } = Astro.props;
+---
+
+<SiteLayout title={categoryLabels[category]} description={`${categoryLabels[category]}，日常生活里的记录。`} activePath="/life/">
+  <section class="collection-page" aria-labelledby="collection-title">
+    <p class="eyebrow">LIFE NOTES / {category.toUpperCase()}</p>
+    <h1 id="collection-title">{categoryLabels[category]}</h1>
+    <p class="collection-page__lead">一张照片，一段当时的味道与心情。</p>
+    <nav class="category-nav" aria-label="生活分类">
+      <a href="/life/">全部</a>
+      {lifeCategories.map((item) => (
+        <a href={categoryPath(item)} aria-current={item === category ? "page" : undefined}>{categoryLabels[item]}</a>
+      ))}
+    </nav>
+    {posts.length > 0 ? (
+      <div class="story-grid story-grid--collection">{posts.map((post) => <StoryCard post={post} />)}</div>
+    ) : (
+      <p class="empty-note">这个分类还没有记录。可以从最近一顿饭、听过的一首歌，或去过的地方开始。</p>
+    )}
+    <Pagination currentPage={1} lastPage={lastPage} basePath={categoryPath(category)} />
+  </section>
+</SiteLayout>

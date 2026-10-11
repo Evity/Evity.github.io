@@ -1,0 +1,32 @@
+---
+import type { GetStaticPaths, Page } from "astro";
+import StoryCard from "../../components/StoryCard.astro";
+import Pagination from "../../components/Pagination.astro";
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { categoryLabels, getLifePosts, lifeCategories, POSTS_PER_PAGE, type Post } from "../../lib/posts";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getLifePosts();
+  return paginate(posts, { pageSize: POSTS_PER_PAGE }).filter(({ params }) => params.page !== undefined);
+}) satisfies GetStaticPaths;
+
+interface Props {
+  readonly page: Page<Post>;
+}
+
+const { page } = Astro.props as Props;
+---
+
+<SiteLayout title={`生活记录 · 第 ${page.currentPage} 页`} description="吃过的味道、喜欢的音乐、咖啡与旅行。" activePath="/life/">
+  <section class="collection-page" aria-labelledby="collection-title">
+    <p class="eyebrow">LIFE NOTES</p>
+    <h1 id="collection-title">生活，总有<span class="text-phrase">值得记下的事。</span></h1>
+    <p class="collection-page__lead">吃过的味道、喜欢的音乐、咖啡与旅行。</p>
+    <nav class="category-nav" aria-label="生活分类">
+      <a href="/life/" aria-current="page">全部</a>
+      {lifeCategories.map((category) => <a href={`/life/${category}/`}>{categoryLabels[category]}</a>)}
+    </nav>
+    <div class="story-grid story-grid--collection">{page.data.map((post) => <StoryCard post={post} />)}</div>
+    <Pagination currentPage={page.currentPage} lastPage={page.lastPage} basePath="/life/" />
+  </section>
+</SiteLayout>

@@ -1,8 +1,8 @@
 # 日常之间 · 部署方法论
 
-文档版本：0.3。官方资料核验日期：2026-09-29。
+文档版本：0.4。Vercel 迁移配置核验日期：2026-10-18；其他平台资料沿用 2026-09-29 的核验记录。
 
-**当前状态：沿用当前仓库的 Git 历史，Astro 静态博客原型已在本地构建与预览。本轮未新建远程仓库、连接 Cloudflare/Vercel、绑定域名或发布线上网站。** 本指南说明从本地原型走到平台部署的步骤；部署前应复核平台当时的控制台选项。
+**当前状态：沿用当前仓库的 Git 历史和已连接的 Vercel 项目 `evity-github-io`，Astro 静态博客已通过本地构建与浏览器预览。** 生产入口为 [evity-github-io.vercel.app](https://evity-github-io.vercel.app/)，通过推送 `main` 触发发布；构建配置已纳入仓库。部署前应复核目标提交与平台当时的控制台选项。
 
 ## 1. 交付方式与边界
 
@@ -216,14 +216,24 @@ bunx wrangler deploy
 ### 6.1 GitHub 导入
 
 1. Vercel 控制台 Add New / Project，连接 GitHub 并 Import 博客仓库。
-2. Framework Preset 选择或确认自动识别为 Astro。
-3. Root Directory 选择应用所在根目录；设置 Install Command 为 `bunx bun@1.3.14 install --frozen-lockfile`、Build Command 为 `bunx bun@1.3.14 run build`、Output Directory 为 `dist`。
+2. Framework Preset 选择或确认自动识别为 Astro；从 Next.js 项目迁移时，旧项目不会因此自动更新已保存的预设。
+3. Root Directory 选择应用所在根目录。仓库的 `vercel.json` 已固定 Framework 为 `astro`、Install Command 为 `bunx bun@1.3.14 install --frozen-lockfile`、Build Command 为 `bunx bun@1.3.14 run build`、Output Directory 为 `dist`；这些字段覆盖控制台对应设置。
 4. `bun.lock` 让 Vercel 自动识别 Bun，但不会固定到 1.3.14；上述命令负责固定版本。核对 Production Branch 为 `main`。
 5. Deploy 后记录 commit SHA、Deployment URL 和生产域名；逐项执行第 8 节检查。
 
 Astro 官方支持直接导入 Git 仓库，静态站不需 adapter；分支推送生成 Preview，生产分支更新生成 Production。[Astro 的 Vercel 部署指南](https://docs.astro.build/en/guides/deploy/vercel/)
 
-首版无需额外 `vercel.json`。如日后添加重定向或响应头，单独记录原因；不要为博客增加将全部路径改写为首页的 SPA rewrite。
+当前沿用旧 NotionNext 的 Vercel 项目，因此将构建契约提交为 `vercel.json`，避免已保存的 Next.js 预设影响本次 Astro 发布。`trailingSlash: true` 与 Astro 的目录式静态输出一致。不要增加将全部路径改写为首页的 SPA rewrite，否则不存在的文章也会返回成功页面。配置覆盖关系见 [Vercel 项目配置](https://vercel.com/docs/project-configuration/vercel-json)。
+
+### 6.1.1 部署成功但页面异常时
+
+先打开部署详情，比较 **Source Commit** 与 `git rev-parse HEAD`，再检查 Framework、输出目录及浏览器实际页面。`git commit` 和本地合并不会触发远程构建，必须推送到生产分支。
+
+2026-10-18 排查发现，`evity-github-io` 生产环境仍在运行 `2a110322` 的 Next.js/NotionNext，而本地已迁移为 Astro。旧页面 HTTP 200，但浏览器显示 “Something went wrong”；页面数据还含有 Notion 获取失败的兜底文章。上游演示站正常，并不能证明本项目的 Notion 页面可访问或部署配置相同。当前博客直接从仓库 Markdown 和图片生成静态页面，已不依赖旧 Notion 数据源。
+
+旧版 NotionNext 在拉取失败后仍返回 `EmptyData` 占位数据，首页继续返回 `props`，所以构建可以成功。占位文章只能证明数据读取失败，不能单凭它断定是页面 ID、权限还是网络问题；也不能据此确定浏览器错误边界的具体触发点。依据：[该版本的数据读取与兜底逻辑](https://github.com/notionnext-org/NotionNext/blob/2a11032252faa3cb3cd62438e821afd245810164/lib/db/SiteDataApi.js#L51-L85)、[占位文章](https://github.com/notionnext-org/NotionNext/blob/2a11032252faa3cb3cd62438e821afd245810164/lib/db/SiteDataApi.js#L319-L340)。
+
+发布后应核对新部署的提交号与推送结果一致，并实际打开首页、分类、文章和不存在的路径；绿色 `Ready` 只代表部署完成，不代表内容和显示已通过验收。
 
 ### 6.2 CLI 备用流程
 

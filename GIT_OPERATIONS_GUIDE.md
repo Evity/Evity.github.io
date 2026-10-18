@@ -105,4 +105,22 @@ git merge --abort
 
 冲突主要来自两个不同目标：上游 `main` 继续维护 NotionNext 多主题应用，功能分支承载的是个人博客。依据个人博客需求，合并提交 `660ff8db` 保留了功能分支的应用树，没有把上游专属页面、主题和依赖重新加回博客；上游提交仍作为合并提交的第二父提交保留在历史里。随后本项目按 `~/Repos/blog` 的内容迁移为 Astro 静态博客。这样解决冲突是一次针对产品目标的选择，不代表遇到冲突都应优先选功能分支。
 
-Astro 改造保存在 `1da13c24`（`Migrate personal blog to Astro`）。可用 `git show --stat 1da13c24` 查看这次迁移，用 `git show 660ff8db^2:path/to/file` 追溯合并前的上游文件。本次只更新本地分支，没有执行远程推送或部署。
+Astro 改造保存在 `1da13c24`（`Migrate personal blog to Astro`）。可用 `git show --stat 1da13c24` 查看这次迁移，用 `git show 660ff8db^2:path/to/file` 追溯合并前的上游文件。最初的合并操作只更新了本地分支；2026-10-18 的后续发布另行获得了推送授权。
+
+## 推送并核对部署
+
+本地检查、构建和浏览器验收通过后，核对远端目标与提交关系，再正常推送：
+
+```sh
+git remote -v
+git fetch origin main
+git log --oneline origin/main..main
+git merge-base --is-ancestor origin/main main
+git push origin main
+git rev-parse HEAD
+git ls-remote origin refs/heads/main
+```
+
+最后两个命令的提交号应相同。若推送因远端有新提交而被拒绝，重新 fetch 并检查差异，按上文流程合并后再验证；不要强制覆盖远端。
+
+推送到 Vercel 的生产分支后，在部署详情核对同一个完整提交号，等待 `Ready`，再通过真实生产域名检查页面、图片、深层链接和 404。本仓库的 Astro 构建设置由 `vercel.json` 管理，旧项目的 Next.js 预设由该文件覆盖；完整说明见 [部署方法论](docs/DEPLOYMENT.md#61-github-导入)。
